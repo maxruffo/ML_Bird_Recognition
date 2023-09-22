@@ -14,6 +14,7 @@ input_image_dir = 'Input_Images/'  # Pfad zum Ordner mit den Eingabebildern
 # Hier verwenden wir MobileNetV2 als Beispiel
 model = keras.applications.MobileNetV2(weights='imagenet', include_top=True)
 
+
 # Funktion zur Vorhersage des Vogels auf einem Bild
 def predict_bird(image_path):
     img = Image.open(image_path)
@@ -22,20 +23,14 @@ def predict_bird(image_path):
     img = keras.applications.mobilenet_v2.preprocess_input(img)
     predictions = model.predict(img)
     decoded_predictions = keras.applications.mobilenet_v2.decode_predictions(predictions)
-    return decoded_predictions[0]
+    
+    # Erstellen Sie eine Liste von Tupeln mit dem Vogelnamen und der Wahrscheinlichkeit
+    bird_predictions = [(class_name, score) for (_, class_name, score) in decoded_predictions[0]]
+    
+    return bird_predictions
 
-# Funktion zur Überprüfung und Speicherung des Bilds
-def process_image(image_path, predicted_class):
-    print(f"Das Modell sagt, es ist ein {predicted_class}.")
-    user_input = input("Ist das Ergebnis richtig? (Ja/Nein): ").strip().lower()
-    if user_input == 'ja':
-        bird_folder = os.path.join(train_data_dir, predicted_class)
-        os.makedirs(bird_folder, exist_ok=True)
-        image = Image.open(image_path)
-        image.save(os.path.join(bird_folder, os.path.basename(image_path)))
-        print("Bild wurde in den Trainingsordner verschoben.")
-    else:
-        print("Bild wurde nicht verschoben.")
+
+
 
 # Hauptfunktion zum Hochladen und Verarbeiten eines zufälligen Bilds aus "Input_Images"
 def main():
@@ -47,7 +42,7 @@ def main():
     input_image_path = os.path.join(input_image_dir, random_image)
     
     predicted_class = predict_bird(input_image_path)
-    process_image(input_image_path, predicted_class[0][1])
+    print(predicted_class)
 
 if __name__ == "__main__":
     main()
